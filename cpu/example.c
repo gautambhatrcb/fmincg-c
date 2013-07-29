@@ -17,7 +17,7 @@ int main()
 {
 	float x[] = { 0,0 }; // initial guess
 	
-	int ret = fmincg(&costFunc, x, 2, 100); // nDim = 2 , maxCostFunctionCalls = 100
+	int ret = fmincg(&costFunc, x, 2, 10000000); // nDim = 2 , maxCostFunctionCalls = 100
 	
 	printf("X-optim = (%f,%f). Return value = %d \n",x[0],x[1],ret);
 	

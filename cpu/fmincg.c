@@ -23,7 +23,7 @@ Copyright (C) 2001 and 2002 by Carl Edward Rasmussen. Date 2002-02-13
 
 int fmincg(void (*costFunc)(COST_FUNC_DATATYPE* inputVector, COST_FUNC_DATATYPE* cost, COST_FUNC_DATATYPE* gradVector), COST_FUNC_DATATYPE* xVector, int nDim, int maxCostCalls)
 {
-	int i,success = 0,costFuncCount=0;
+	int i,success = 0,costFuncCount=0,lineSearchFuncCount=0;
 	COST_FUNC_DATATYPE ls_failed,f1,d1,z1,f0,f2,d2,f3,d3,z3,limit,z2,A,B,C;
 	COST_FUNC_DATATYPE df1[nDim],s[nDim],x0[nDim],df0[nDim],df2[nDim],tmp[nDim];
 	COST_FUNC_DATATYPE* x = xVector;
@@ -74,9 +74,11 @@ int fmincg(void (*costFunc)(COST_FUNC_DATATYPE* inputVector, COST_FUNC_DATATYPE*
 		
 		success = 0; 
 		limit = -1;
+		lineSearchFuncCount = 0;
+		// begin line search
 		while(1)
 		{
-			while(( (f2) > ((f1) + RHO*(z1)*(d1))) || ( (d2) > -SIG*(d1) ))
+			while((( (f2) > ((f1) + RHO*(z1)*(d1))) || ( (d2) > -SIG*(d1) )) && lineSearchFuncCount < MAX)
 			{
 				limit = z1;
 				if( (f2) > (f1) )
@@ -103,6 +105,7 @@ int fmincg(void (*costFunc)(COST_FUNC_DATATYPE* inputVector, COST_FUNC_DATATYPE*
 					x[i] = x[i] + (z2)*s[i];
 				}
 				if(costFuncCount >= maxCostCalls) return 1; else costFuncCount++;
+				lineSearchFuncCount++;
 				(*costFunc)(x,&f2,df2);
 
 				d2 = 0;
@@ -112,7 +115,7 @@ int fmincg(void (*costFunc)(COST_FUNC_DATATYPE* inputVector, COST_FUNC_DATATYPE*
 				}
 				z3 = z3 - z2;
 			}
-			if( (f2 > f1 + (z1)*RHO*(d1)) || ((d2) > -SIG*(d1)) )
+			if( (f2 > f1 + (z1)*RHO*(d1)) || ((d2) > -SIG*(d1)) || lineSearchFuncCount >= MAX)
 			{
 				break; //failure
 			}
@@ -164,10 +167,11 @@ int fmincg(void (*costFunc)(COST_FUNC_DATATYPE* inputVector, COST_FUNC_DATATYPE*
 				d2 += df2[i]*s[i];
 			}
 		}
+		// line search ended
 		if(success)
 		{
 			f1 = f2;
-			printf("Cost: %4.6f\n", f1);
+			printf("Cost: %e\n", f1);
 			
 			A = 0;
 			B = 0;
