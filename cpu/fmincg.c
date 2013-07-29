@@ -15,7 +15,7 @@ Copyright (C) 2001 and 2002 by Carl Edward Rasmussen. Date 2002-02-13
 % advisable in any important application.  All use of these programs is
 % entirely at the user's own risk.
 
-[ s-gv, 2013, sagar.writeme@gmail.com ] Changes Made:
+[ Sagar GV, 2013, sagar.writeme@gmail.com ] Changes Made:
 - Ported to C
 
 */

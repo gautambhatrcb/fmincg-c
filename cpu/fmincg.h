@@ -37,5 +37,5 @@ Copyright (C) 2001 and 2002 by Carl Edward Rasmussen. Date 2002-02-13
 // 2. xVector should contain the initial point which is will be modified to reflect the optimum point
 // 3. nDim is the dimension of xVector
 // 4. maxCostCalls is the maximum number of times the cost function may be called
-// return value = 0 -> success. Otherwise fail. 1 -> Num of Cost function calls exceeded max specified in the argument. 2-> line search failed
-int fmincg(void (*costFunc)(COST_FUNC_DATATYPE* inputVector, COST_FUNC_DATATYPE* cost, COST_FUNC_DATATYPE* gradVector), COST_FUNC_DATATYPE* xVector, int nDim, int maxCostCalls);
+// return value:  1 -> Num of Cost function calls exceeded max specified in the argument. 2-> line search failed
+int fmincg(void (*costFunc)(COST_FUNC_DATATYPE* inputVector, COST_FUNC_DATATYPE* cost, COST_FUNC_DATATYPE* gradVector), COST_FUNC_DATATYPE* xVector, int nDim, int maxCostFuncCalls);
