@@ -16,7 +16,7 @@ with open('costFunc.cl','r') as f:
 costPrg = cl.Program(ctx, ker_code).build()
 
 # prep variables
-x = np.zeros((2,1)).astype(np.float32) # initial x vector = (0,0)
+x = np.zeros(2).astype(np.float32) # initial x vector = (0,0)
 d_x = cl.Buffer(ctx, mf.COPY_HOST_PTR, hostbuf=x)
 
 cost = np.zeros(1).astype(np.float32)
@@ -25,22 +25,18 @@ d_cost = cl.Buffer(ctx, mf.WRITE_ONLY,cost.nbytes)
 grad = np.zeros((2,1)).astype(np.float32)
 d_grad = cl.Buffer(ctx, mf.WRITE_ONLY,grad.nbytes)
 
-iState = np.zeros(100).astype(np.int32)
+iState = np.zeros(100).astype(np.int32) # has to be zero filled
 d_iState = cl.Buffer(ctx, mf.COPY_HOST_PTR, hostbuf=iState)
 
 state = np.zeros(100).astype(np.float32)
 d_state = cl.Buffer(ctx, mf.COPY_HOST_PTR, hostbuf=state)
 
-#dbg = np.zeros(1).astype(np.float32)
-#d_dbg = cl.Buffer(ctx, mf.COPY_HOST_PTR, hostbuf=dbg)
 
 # call the cost function and fmincg kernel repititively
 for i in range(1000):
-	costPrg.costFunc(queue,(1,),(1,),d_x,d_cost,d_grad)
 	fmicgPrg.fmincg(queue,(1,),(1,),d_x,d_cost,d_grad,d_iState,d_state)
-
+	costPrg.costFunc(queue,(1,),(1,),d_x,d_cost,d_grad)
+	
 cl.enqueue_copy(queue, x, d_x).wait()
 print "X-optimum = \n",x
 
-#cl.enqueue_copy(queue, dbg, d_dbg).wait()
-#print dbg

@@ -19,7 +19,6 @@ Copyright (C) 2001 and 2002 by Carl Edward Rasmussen. Date 2002-02-13
 - Ported to C
 - Changed structure to make it usable as an OpenCL kernel
 */
-
 #define COST_FUNC_DATATYPE float
 #define COST_FUNC_DATATYPE_MIN (FLT_MIN*100)
 
@@ -34,7 +33,7 @@ Copyright (C) 2001 and 2002 by Carl Edward Rasmussen. Date 2002-02-13
 
 // iState should be able to hold 3 integers
 // state should be able to hold (15+6*nDim) COST_FUNC_DATATYPEs
-__kernel void fmincg(__global  COST_FUNC_DATATYPE* xVector,__global  COST_FUNC_DATATYPE* cost,__global  COST_FUNC_DATATYPE* gradVector,__global int* iState,__global COST_FUNC_DATATYPE* state)
+__kernel void fmincg(__global COST_FUNC_DATATYPE* xVector,__global COST_FUNC_DATATYPE* cost,__global COST_FUNC_DATATYPE* gradVector,__global int* iState,__global COST_FUNC_DATATYPE* state)
 {
 	int i;
 	__global int *st=&iState[0],*success=&iState[1],*lineSearchFuncCount=&iState[2];
@@ -54,7 +53,8 @@ __kernel void fmincg(__global  COST_FUNC_DATATYPE* xVector,__global  COST_FUNC_D
 	}
 INIT:
 	*ls_failed = 0;
-
+	*success = 0;
+	*lineSearchFuncCount = 0;
 	//(*costFunc)(xVector,&f1,df1);
 	*st = 1;return;
 EV1	:
@@ -87,7 +87,6 @@ EV1	:
 		{
 			x[i] = x[i] + (*z1)*s[i];
 		}
-		
 		//(*costFunc)(x,&f2,df2);
 		*st = 2; return;
 EV2:	
@@ -270,6 +269,7 @@ EV4:
 			}
 			if(*ls_failed)
 			{
+				*st = 100;
 				break;
 			}
 			for(i=0;i<nDim;i++)
