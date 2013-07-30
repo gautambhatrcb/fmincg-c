@@ -58,7 +58,6 @@ int fmincg(void (*costFunc)(COST_FUNC_DATATYPE* inputVector, COST_FUNC_DATATYPE*
 		{
 			x[i] = x[i] + (z1)*s[i];
 		}
-		
 		if(costFuncCount >= maxCostCalls) return 1; else costFuncCount++;
 		(*costFunc)(x,&f2,df2);
 
@@ -115,13 +114,17 @@ int fmincg(void (*costFunc)(COST_FUNC_DATATYPE* inputVector, COST_FUNC_DATATYPE*
 				}
 				z3 = z3 - z2;
 			}
-			if( (f2 > f1 + (z1)*RHO*(d1)) || ((d2) > -SIG*(d1)) || lineSearchFuncCount >= MAX)
+			if( (f2 > f1 + (z1)*RHO*(d1)) || ((d2) > -SIG*(d1)) )
 			{
 				break; //failure
 			}
-			if( d2 > SIG*(d1) )
+			else if( d2 > SIG*(d1) )
 			{
 				success = 1; break; 
+			}
+			else if(lineSearchFuncCount >= MAX)
+			{
+				break;
 			}
 			A = 6*(f2-f3)/z3+3*(d2+d3);
 			B = 3*(f3-f2)-z3*(d3+2*d2);
@@ -171,7 +174,7 @@ int fmincg(void (*costFunc)(COST_FUNC_DATATYPE* inputVector, COST_FUNC_DATATYPE*
 		if(success)
 		{
 			f1 = f2;
-			printf("Cost: %e\n", f1);
+			//printf("Cost: %e\n", f1);
 			
 			A = 0;
 			B = 0;

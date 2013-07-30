@@ -6,7 +6,7 @@ void costFunc(float* xVec,float* cost,float* gradVec)
 	// f(x,y) = (x-10)^4 + (y-4)^2
 	
 	*cost = (xVec[0]-10)*(xVec[0]-10)*(xVec[0]-10)*(xVec[0]-10) + (xVec[1]-4)*(xVec[1]-4);
-	
+
 	gradVec[0] = 4*(xVec[0]-10)*(xVec[0]-10)*(xVec[0]-10);
 	gradVec[1] = 2*(xVec[1]-4);
 }
