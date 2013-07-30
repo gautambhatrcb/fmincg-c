@@ -38,18 +38,18 @@ __kernel void fmincg(__global  COST_FUNC_DATATYPE* xVector,__global  COST_FUNC_D
 {
 	int i;
 	__global int *st=&iState[0],*success=&iState[1],*lineSearchFuncCount=&iState[2];
-	__global COST_FUNC_DATATYPE *ls_failed=&state[0],*f1=&state[1],*d1=&state[2],*z1=&state[3],*f0=&state[3],*f2=&state[4],*d2=&state[5],*f3=&state[6],*d3=&state[7],*z3=&state[8],*limit=&state[9],*z2=&state[10];
+	__global COST_FUNC_DATATYPE *ls_failed=&state[0],*f1=&state[1],*d1=&state[2],*z1=&state[3],*f0=&state[4],*f2=&state[5],*d2=&state[6],*f3=&state[7],*d3=&state[8],*z3=&state[9],*limit=&state[10],*z2=&state[11];
 	COST_FUNC_DATATYPE A,B,C;
 	__global COST_FUNC_DATATYPE *df1=&state[15],*s=&state[nDim+15],*x0=&state[2*nDim+15],*df0=&state[3*nDim+15],*df2=&state[4*nDim+15],*tmp=&state[5*nDim+15];
 	__global COST_FUNC_DATATYPE *x = xVector;
 	
 	switch(*st)
 	{
-		case 0:	goto INIT;
-		case 1:	goto EV1;
-		case 2: goto EV2;
-		case 3: goto EV3;
-		case 4: goto EV4;
+		case 0:	goto INIT;break;
+		case 1:	goto EV1;break;
+		case 2: goto EV2;break;
+		case 3: goto EV3;break;
+		case 4: goto EV4;break;
 		default:return;
 	}
 INIT:
@@ -154,13 +154,17 @@ EV3:
 				}
 				*z3 = *z3 - *z2;
 			}
-			if( ((*f2) > (*f1) + (*z1)*RHO*(*d1)) || ((*d2) > -SIG*(*d1)) || *lineSearchFuncCount >= MAX)
+			if( ((*f2) > (*f1) + (*z1)*RHO*(*d1)) || ((*d2) > -SIG*(*d1)))
 			{
 				break; //failure
 			}
-			if( (*d2) > SIG*(*d1) )
+			else if( (*d2) > SIG*(*d1) )
 			{
 				*success = 1; break; 
+			}
+			else if(*lineSearchFuncCount >= MAX)
+			{
+				break; // fail
 			}
 			A = 6*((*f2)-(*f3))/(*z3)+3*((*d2)+(*d3));
 			B = 3*((*f3)-(*f2))-(*z3)*((*d3)+2*(*d2));
