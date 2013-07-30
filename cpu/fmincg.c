@@ -163,6 +163,7 @@ int fmincg(void (*costFunc)(COST_FUNC_DATATYPE* inputVector, COST_FUNC_DATATYPE*
 				x[i] = x[i] + z2*s[i];
 			}
 			if(costFuncCount >= maxCostCalls) return 1; else costFuncCount++;
+			lineSearchFuncCount++;
 			(*costFunc)(x,&f2,df2);
 			d2 = 0;
 			for(i=0;i<nDim;i++)

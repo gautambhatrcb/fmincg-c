@@ -33,15 +33,15 @@ Copyright (C) 2001 and 2002 by Carl Edward Rasmussen. Date 2002-02-13
 
 // iState should be able to hold 3 integers
 // state should be able to hold (15+6*nDim) COST_FUNC_DATATYPEs
-__kernel void fmincg(__global COST_FUNC_DATATYPE* xVector,__global COST_FUNC_DATATYPE* cost,__global COST_FUNC_DATATYPE* gradVector,__global int* iState,__global COST_FUNC_DATATYPE* state)
+__kernel void fmincg(__global COST_FUNC_DATATYPE* xVector,__global COST_FUNC_DATATYPE* cost,__global COST_FUNC_DATATYPE* gradVector,__global  int* iState,__global  COST_FUNC_DATATYPE* state,__global float* dbg)
 {
 	int i;
-	__global int *st=&iState[0],*success=&iState[1],*lineSearchFuncCount=&iState[2];
-	__global COST_FUNC_DATATYPE *ls_failed=&state[0],*f1=&state[1],*d1=&state[2],*z1=&state[3],*f0=&state[4],*f2=&state[5],*d2=&state[6],*f3=&state[7],*d3=&state[8],*z3=&state[9],*limit=&state[10],*z2=&state[11];
+	__global  int *st=&iState[0],*success=&iState[1],*lineSearchFuncCount=&iState[2];
+	__global  COST_FUNC_DATATYPE *ls_failed=&state[0],*f1=&state[1],*d1=&state[2],*z1=&state[3],*f0=&state[4],*f2=&state[5],*d2=&state[6],*f3=&state[7],*d3=&state[8],*z3=&state[9],*limit=&state[10],*z2=&state[11];
 	COST_FUNC_DATATYPE A,B,C;
-	__global COST_FUNC_DATATYPE *df1=&state[15],*s=&state[nDim+15],*x0=&state[2*nDim+15],*df0=&state[3*nDim+15],*df2=&state[4*nDim+15],*tmp=&state[5*nDim+15];
-	__global COST_FUNC_DATATYPE *x = xVector;
-	
+	__global  COST_FUNC_DATATYPE *df1=&state[15],*s=&state[nDim+15],*x0=&state[2*nDim+15],*df0=&state[3*nDim+15],*df2=&state[4*nDim+15],*tmp=&state[5*nDim+15];
+	__global  COST_FUNC_DATATYPE *x = xVector;
+	 
 	switch(*st)
 	{
 		case 0:	goto INIT;break;
@@ -161,25 +161,26 @@ EV3:
 			{
 				*success = 1; break; 
 			}
-			else if(*lineSearchFuncCount >= MAX)
+			else if((*lineSearchFuncCount) >= MAX)
 			{
 				break; // fail
 			}
 			A = 6*((*f2)-(*f3))/(*z3)+3*((*d2)+(*d3));
 			B = 3*((*f3)-(*f2))-(*z3)*((*d3)+2*(*d2));
 			*z2 = -(*d2)*(*z3)*(*z3)/(B+sqrt(B*B-A*(*d2)*(*z3)*(*z3)));
-			if(!(B*B-A*(*d2)*(*z3)*(*z3) >= 0) || isnan(*z2) || isinf(*z2) || *z2 < 0)
+			if(!(B*B-A*(*d2)*(*z3)*(*z3) >= 0) || isnan(*z2) || isinf(*z2) || (*z2) < 0)
 			{
 				if(*limit < -0.5f)
 				{
-					*z2 = *z1 * (EXT-1);
+					(*z2) = (*z1) * (EXT-1);
+					(*dbg) = (*z1);
 				}
 				else
 				{
-					*z2 = (*limit-*z1)/2;
+					(*z2) = (*limit-*z1)/2;
 				}
 			}
-			else if((*limit > -0.5) && ((*z2)+(*z1) > *limit))
+			else if(((*limit) > -0.5) && ((*z2)+(*z1) > (*limit)))
 			{
 				*z2 = (*limit-*z1)/2; 
 			}	
@@ -196,12 +197,13 @@ EV3:
 				*z2 = (*limit-*z1)*(1.0-INT);
 			}
 			*f3 = *f2; *d3 = *d2; *z3 = -(*z2);
-			*z1 = *z1 + *z2;
+			*z1 = (*z1) + (*z2);
 			for(i=0;i<nDim;i++)
 			{
 				x[i] = x[i] + (*z2)*s[i];
 			}
 			//(*costFunc)(x,&f2,df2);
+			*lineSearchFuncCount += 1;
 			*st = 4;return;
 EV4:		
 			*f2 = *cost;

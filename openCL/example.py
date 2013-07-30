@@ -31,12 +31,19 @@ d_iState = cl.Buffer(ctx, mf.COPY_HOST_PTR, hostbuf=iState)
 state = np.zeros(100).astype(np.float32)
 d_state = cl.Buffer(ctx, mf.COPY_HOST_PTR, hostbuf=state)
 
+dbg = np.zeros(1).astype(np.float32)
+d_dbg = cl.Buffer(ctx, mf.COPY_HOST_PTR, hostbuf=dbg)
 
 # call the cost function and fmincg kernel repititively
 for i in range(1000):
-	fmicgPrg.fmincg(queue,(1,),(1,),d_x,d_cost,d_grad,d_iState,d_state)
+	fmicgPrg.fmincg(queue,(1,),(1,),d_x,d_cost,d_grad,d_iState,d_state,d_dbg)
+	#cl.enqueue_copy(queue, dbg, d_dbg).wait()
+	#print "%e" % dbg
+	#print "(",x[0],",",x[1],")"
 	costPrg.costFunc(queue,(1,),(1,),d_x,d_cost,d_grad)
 	
 cl.enqueue_copy(queue, x, d_x).wait()
-print "X-optimum = \n",x
+print "x = ",x
 
+#cl.enqueue_copy(queue, dbg, d_dbg).wait()
+#print "%e" % dbg
